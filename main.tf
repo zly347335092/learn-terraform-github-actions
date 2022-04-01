@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "alicloud" {
-  region = "cn-shanghai"
+  region = "cn-chengdu"
 }
 
 data "alicloud_images" "ubuntu" {
@@ -25,7 +25,7 @@ data "alicloud_images" "ubuntu" {
 }
 
   
-resource "alicloud_instance" "instance" {
+resource "alicloud_instance" "instance1" {
   # cn-beijing
   availability_zone = "cn-chengdu-a"
   security_groups = ["sg-2vc4r8v7gd43watyfjr0"]
@@ -41,5 +41,5 @@ resource "alicloud_instance" "instance" {
 }
   
 output "web-address" {
-  value = "${alicloud_instance.instance.id}"
+  value = "${alicloud_instance.instance1.id}"
 }
