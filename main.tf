@@ -45,7 +45,7 @@ module "ecs_cluster" {
 
   tags = {
     Created      = "Terraform"
-    Environment = "dev1"
+    Environment = "dev12"
   }
 }
 output "web-address" {
