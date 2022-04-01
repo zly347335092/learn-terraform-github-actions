@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "alicloud" {
-  region = "cn-chengdu1"
+  region = "cn-chengdu"
 }
 
 data "alicloud_images" "ubuntu" {
