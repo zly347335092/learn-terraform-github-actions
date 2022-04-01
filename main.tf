@@ -49,5 +49,5 @@ module "ecs_cluster" {
   }
 }
 output "web-address" {
-  value = "${module.ecs_cluster.*.id}:8080"
+  value = "${module.ecs_cluster.*.this_instance_id}:8080"
 }
