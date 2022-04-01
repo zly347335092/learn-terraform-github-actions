@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "alicloud" {
-  region = "cn-shanghai"
+  region = "cn-beijing"
 }
 
 data "alicloud_images" "ubuntu" {
@@ -33,8 +33,8 @@ module "ecs_cluster" {
   use_num_suffix              = true
   image_id                    = data.alicloud_images.ubuntu.ids.0
   instance_type               = "ecs.s6-c1m2.large"
-  vswitch_id                  = "vsw-uf62xl11nl5nq34qt4znb"
-  security_group_ids          = ["sg-2vc4r8v7gd43watyfjr0"]
+  vswitch_id                  = "vsw-2zedpvq31rf9awtu5w096"
+  security_group_ids          = ["sg-2zedxkmzpchppwruijfn"]
   associate_public_ip_address = true
   internet_max_bandwidth_out  = 10
 
