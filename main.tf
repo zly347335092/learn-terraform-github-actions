@@ -1,18 +1,17 @@
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "3.26.0"
+    alicloud = {
+      source  = "aliyun/alicloud"
+      version = "1.162.0"
     }
     random = {
-      source  = "hashicorp/random"
+      source  = "hashicorp/srandom"
       version = "3.0.1"
     }
   }
-  required_version = ">= 1.1.0"
 
   cloud {
-    organization = "REPLACE_ME"
+    organization = "zly"
 
     workspaces {
       name = "gh-actions-demo"
@@ -20,60 +19,39 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "us-west-2"
+provider "alicloud" {
+  region = "cn-beijing"
 }
 
-resource "random_pet" "sg" {}
-
-data "aws_ami" "ubuntu" {
+data "alicloud_images" "ubuntu" {
   most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
+  name_regex  = "^ubuntu_18.*64"
 }
 
-resource "aws_instance" "web" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.web-sg.id]
+module "ecs_cluster" {
+  source  = "alibaba/ecs-instance/alicloud"
 
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update
-              apt-get install -y apache2
-              sed -i -e 's/80/8080/' /etc/apache2/ports.conf
-              echo "Hello World" > /var/www/html/index.html
-              systemctl restart apache2
-              EOF
-}
+  number_of_instances = 1
 
-resource "aws_security_group" "web-sg" {
-  name = "${random_pet.sg.id}-sg"
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  // connectivity to ubuntu mirrors is required to run `apt-get update` and `apt-get install apache2`
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  name                        = "my-ecs-cluster"
+  use_num_suffix              = true
+  image_id                    = data.alicloud_images.ubuntu.ids.0
+  instance_type               = "ecs.sn1ne.large"
+  vswitch_id                  = "vsw-2vckzmhrxxoce4orouajw"
+  security_group_ids          = ["sg-2vc4r8v7gd43watyfjr0"]
+  associate_public_ip_address = true
+  internet_max_bandwidth_out  = 10
+
+  password = "Asd123456"
+
+  system_disk_category = "cloud_ssd"
+  system_disk_size     = 50
+
+  tags = {
+    Created      = "Terraform"
+    Environment = "dev"
   }
 }
-
 output "web-address" {
-  value = "${aws_instance.web.public_dns}:8080"
+  value = "${module.ecs_cluster.*.id}:8080"
 }
